@@ -1,0 +1,276 @@
+---
+title: "Case Study 2"
+author: "Jason Lin, Manisha Pednekar, Jason Lingle"
+date: "April 16, 2018"
+output:       
+      html_document:
+        keep_md: TRUE
+---
+
+#Preliminary Look over of the variables based on column percentages                   
+
+```{r preliminary}
+setwd("C:/Users/sams/Desktop/SMU/January 2018/Doing Data Science/CaseStudy2")
+casestudy <- read.csv("CaseStudy2data_2.csv",header = TRUE)
+library(tigerstats)
+boxplot(Age~Attrition,casestudy,main="Age")
+hist(casestudy$Age)
+boxplot(DailyRate~Attrition,casestudy,main="DailyRate")
+boxplot(DistanceFromHome~Attrition,casestudy,main="DailyRate")
+boxplot(HourlyRate~Attrition,casestudy,main="HourlyRate")
+boxplot(MonthlyIncome~Attrition,casestudy,main="MonthlyIncome")#Variable of interest
+boxplot(PercentSalaryHike~Attrition,casestudy,main="% Salaray Hike")
+boxplot(TotalWorkingYears~Attrition,casestudy,main="Total Working Years")#Variable of Interest
+boxplot(YearsAtCompany~Attrition,casestudy,main="Years at Company")# ok not the best
+boxplot(YearsInCurrentRole~Attrition,casestudy,main="Years at Current")# Variable of Interest
+boxplot(YearsSinceLastPromotion~Attrition,casestudy,main="Years since last Promo")
+colPerc(xtabs(~Attrition+Department,casestudy))#maybe
+colPerc(xtabs(~Attrition+Education,casestudy))
+colPerc(xtabs(~Attrition+Gender,casestudy))
+colPerc(xtabs(~Attrition+EducationField,casestudy))#maybe
+colPerc(xtabs(~Attrition+EnvironmentSatisfaction,casestudy))#Variable of Interest
+colPerc(xtabs(~Attrition+JobInvolvement,casestudy))#Variable of Interest
+colPerc(xtabs(~Attrition+JobLevel,casestudy))#Variable of Interest
+colPerc(xtabs(~Attrition+JobRole,casestudy))#Variable of Interest
+colPerc(xtabs(~Attrition+JobSatisfaction,casestudy))#ok not that good
+colPerc(xtabs(~Attrition+MaritalStatus,casestudy))
+boxplot(NumCompaniesWorked~Attrition,casestudy)#maybe
+colPerc(xtabs(~Attrition+OverTime,casestudy))
+colPerc(xtabs(~Attrition+PerformanceRating,casestudy))#about the same
+colPerc(xtabs(~Attrition+StockOptionLevel,casestudy))#Variable of interest
+boxplot(YearsWithCurrManager~Attrition,casestudy)#variable of Interest
+colPerc(xtabs(~Attrition+WorkLifeBalance,casestudy))#variable of Interest
+boxplot(TotalWorkingYears~Attrition,casestudy)#Variable of Interest
+colPerc(xtabs(~Attrition+TrainingTimesLastYear,casestudy))
+```                                                
+
+#Final variables Examination                
+```{r final}
+library(sqldf)
+library(ggplot2)
+
+hist(casestudy$Age,xlab = "Age", main = "Age Distribution")
+
+Dept_Attrition <-sqldf("select Department, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by Department,  Attrition")
+ggplot(Dept_Attrition, aes(x=Department, y=number_of_employees, fill=Attrition)) + geom_bar(stat="identity") + labs(title="Attrition of Number of Employees Per Department", x="Department", y="Number of Employees") + theme(plot.title = element_text(hjust = 0.5))
+Dept_Attrition$Percent_Employees <- Dept_Attrition$number_of_employees/sum(Dept_Attrition$number_of_employees)
+JobRole_Attrition <-sqldf("select JobRole, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobRole, Attrition")
+JobRole_Attrition$Percent_Employees <- JobRole_Attrition$number_of_employees/sum(JobRole_Attrition$number_of_employees)
+
+
+
+#Graphing Stuff
+colPerc(xtabs(~Attrition+OverTime,casestudy))
+rowPerc(xtabs(~Attrition+OverTime,casestudy))
+colPerc(xtabs(~Attrition+WorkLifeBalance,casestudy))#variable of Interest
+rowPerc(xtabs(~Attrition+WorkLifeBalance,casestudy))#variable of Interest
+colPerc(xtabs(~Attrition+EnvironmentSatisfaction,casestudy))#Variable of Interest
+rowPerc(xtabs(~Attrition+EnvironmentSatisfaction,casestudy))#Variable of Interest
+
+colPerc(xtabs(~Attrition+StockOptionLevel,casestudy))#Variable of interest
+rowPerc(xtabs(~Attrition+StockOptionLevel,casestudy))#Variable of interest
+
+
+
+
+
+colPerc(xtabs(~Attrition+JobLevel,casestudy))#Variable of Interest
+rowPerc(xtabs(~Attrition+JobLevel,casestudy))#Variable of Interest
+
+
+rowPerc(xtabs(~Attrition+Department,casestudy))#maybe
+ggplot(Dept_Attrition, aes(x=Department, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +    theme_minimal()+ggtitle("Attrition of Employees by Department")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+
+
+
+ggplot(JobRole_Attrition, aes(x=JobRole, y=number_of_employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Job Role")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+
+
+colPerc(xtabs(~Attrition+JobRole,casestudy))#Variable of Interest
+rowPerc(xtabs(~Attrition+JobRole,casestudy))#Variable of Interest
+ggplot(JobRole_Attrition, aes(x=JobRole, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("% Attrition of Employees by Job Role")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+
+colPerc(xtabs(~Attrition+JobInvolvement,casestudy))#Variable of Interest
+rowPerc(xtabs(~Attrition+JobInvolvement,casestudy))
+JobInvolvement_Attrition <-sqldf("select JobInvolvement, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobInvolvement, Attrition")
+JobInvolvement_Attrition$Percent_Employees<-JobInvolvement_Attrition$number_of_employees/sum(JobInvolvement_Attrition$number_of_employees)
+ggplot(JobInvolvement_Attrition, aes(x=JobInvolvement, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +    theme_minimal()+ggtitle("Attrition of Employees by Job Involvement")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+
+```                                               
+
+#Plots of some Other Important variables                                                     
+```{r other_plots}
+#Dept 
+Dept_Attrition <-sqldf("select Department, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by Department,  Attrition")
+Dept_Attrition$Percent_Employees<-Dept_Attrition$number_of_employees/sum(Dept_Attrition$number_of_employees) 
+ggplot(Dept_Attrition, aes(x=Department, y=number_of_employees, fill=Attrition)) + geom_bar(stat="identity") + labs(title="Attrition of Number of Employees Per Department", x="Department", y="Number of Employees") + theme(plot.title = element_text(hjust = 0.5))
+ggplot(Dept_Attrition, aes(x=Department, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +    theme_minimal()+ggtitle("Attrition of Employees by Department")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+rowPerc(xtabs(~Attrition+ Department,casestudy))
+colPerc(xtabs(~Attrition+ Department,casestudy))
+
+
+#Job Role
+JobRole_Attrition <-sqldf("select JobRole, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobRole, Attrition")
+JobRole_Attrition$Percent_Employees <- JobRole_Attrition$number_of_employees/
+sum(JobRole_Attrition$number_of_employees)
+ggplot(JobRole_Attrition, aes(x=JobRole, y=number_of_employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Job Role")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+ggplot(JobRole_Attrition, aes(x=JobRole, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("% Attrition of Employees by Job Role")+theme(plot.title = element_text(hjust = 0.5,size=22),axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size=8))
+rowPerc(xtabs(~Attrition+ JobRole,casestudy))
+colPerc(xtabs(~Attrition+ JobRole,casestudy))
+
+
+#Work Life
+WorkLifeBalance_Attrition <-sqldf("select WorkLifeBalance, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by WorkLifeBalance, Attrition")
+WorkLifeBalance_Attrition$Percent_Employees <- WorkLifeBalance_Attrition$number_of_employees/sum(WorkLifeBalance_Attrition$number_of_employees)
+ggplot(WorkLifeBalance_Attrition, aes(x=WorkLifeBalance, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Work Life Balance")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ WorkLifeBalance,casestudy))
+colPerc(xtabs(~Attrition+ WorkLifeBalance,casestudy))
+
+
+#Environment Satisfaction
+EnvironmentSatisfaction_Attrition <-sqldf("select EnvironmentSatisfaction, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by EnvironmentSatisfaction, Attrition")
+EnvironmentSatisfaction_Attrition$Percent_Employees <- EnvironmentSatisfaction_Attrition$number_of_employees/sum(EnvironmentSatisfaction_Attrition$number_of_employees)
+ggplot(EnvironmentSatisfaction_Attrition, aes(x=EnvironmentSatisfaction, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Environment Satisfaction")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ EnvironmentSatisfaction,casestudy))
+colPerc(xtabs(~Attrition+ EnvironmentSatisfaction,casestudy))
+
+
+#Job Involvement
+JobInvolvement_Attrition <-sqldf("select JobInvolvement, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobInvolvement, Attrition")
+JobInvolvement_Attrition$Percent_Employees <- JobInvolvement_Attrition$number_of_employees/sum(JobInvolvement_Attrition$number_of_employees)
+ggplot(JobInvolvement_Attrition, aes(x=JobInvolvement, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Job Involvement")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ JobInvolvement,casestudy))
+colPerc(xtabs(~Attrition+ JobInvolvement,casestudy))
+
+
+#Stock Option Level
+StockOptionLevel_Attrition <-sqldf("select StockOptionLevel, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by StockOptionLevel, Attrition")
+StockOptionLevel_Attrition$Percent_Employees <- StockOptionLevel_Attrition$number_of_employees/sum(StockOptionLevel_Attrition$number_of_employees)
+ggplot(StockOptionLevel_Attrition, aes(x=StockOptionLevel, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Stock Option Level")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ StockOptionLevel,casestudy))
+colPerc(xtabs(~Attrition+ StockOptionLevel,casestudy))
+
+
+#Years Since Last Promotion
+YearsSinceLastPromotion_Attrition <-sqldf("select YearsSinceLastPromotion, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by YearsSinceLastPromotion, Attrition")
+YearsSinceLastPromotion_Attrition$Percent_Employees <- YearsSinceLastPromotion_Attrition$number_of_employees/sum(YearsSinceLastPromotion_Attrition$number_of_employees)
+ggplot(YearsSinceLastPromotion_Attrition, aes(x=YearsSinceLastPromotion, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Years Since Last Promotion")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ YearsSinceLastPromotion,casestudy))
+colPerc(xtabs(~Attrition+ YearsSinceLastPromotion,casestudy))
+
+
+#Years in Current Role
+YearsInCurrentRole_Attrition <-sqldf("select YearsInCurrentRole, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by YearsInCurrentRole, Attrition")
+YearsInCurrentRole_Attrition$Percent_Employees <- YearsInCurrentRole_Attrition$number_of_employees/sum(YearsInCurrentRole_Attrition$number_of_employees)
+ggplot(YearsInCurrentRole_Attrition, aes(x=YearsInCurrentRole, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Years in Current Role")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ YearsInCurrentRole,casestudy))
+colPerc(xtabs(~Attrition+ YearsInCurrentRole,casestudy))
+
+
+#Training in Last Year
+TrainingTimesLastYear_Attrition <-sqldf("select TrainingTimesLastYear, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by TrainingTimesLastYear, Attrition")
+TrainingTimesLastYear_Attrition$Percent_Employees <- TrainingTimesLastYear_Attrition$number_of_employees/sum(TrainingTimesLastYear_Attrition$number_of_employees)
+ggplot(TrainingTimesLastYear_Attrition, aes(x=TrainingTimesLastYear, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Training in Last Year")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ TrainingTimesLastYear,casestudy))
+colPerc(xtabs(~Attrition+ TrainingTimesLastYear,casestudy))
+
+#Total Years Working
+TotalWorkingYears_Attrition <-sqldf("select TotalWorkingYears, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by TotalWorkingYears, Attrition")
+TotalWorkingYears_Attrition$Percent_Employees <- TotalWorkingYears_Attrition$number_of_employees/sum(TotalWorkingYears_Attrition$number_of_employees)
+ggplot(TotalWorkingYears_Attrition, aes(x=TotalWorkingYears, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Years in Current Role")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ TotalWorkingYears,casestudy))
+colPerc(xtabs(~Attrition+ TotalWorkingYears,casestudy))
+
+
+#Years at Company
+YearsAtCompany_Attrition <-sqldf("select YearsAtCompany, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by YearsAtCompany, Attrition")
+YearsAtCompany_Attrition$Percent_Employees <- YearsAtCompany_Attrition$number_of_employees/sum(YearsAtCompany_Attrition$number_of_employees)
+ggplot(YearsAtCompany_Attrition, aes(x=YearsAtCompany, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Years at Company")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ YearsAtCompany,casestudy))
+colPerc(xtabs(~Attrition+ YearsAtCompany,casestudy))
+
+
+#Performance Rating
+PerformanceRating_Attrition <-sqldf("select PerformanceRating, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by PerformanceRating, Attrition")
+PerformanceRating_Attrition$Percent_Employees <- PerformanceRating_Attrition$number_of_employees/sum(PerformanceRating_Attrition$number_of_employees)
+ggplot(PerformanceRating_Attrition, aes(x=PerformanceRating, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Performance Rating")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+PerformanceRating,casestudy))
+colPerc(xtabs(~Attrition+PerformanceRating,casestudy))
+
+#Percent Salary Hike
+PercentSalaryHike_Attrition <-sqldf("select PercentSalaryHike, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by PercentSalaryHike, Attrition")
+PercentSalaryHike_Attrition$Percent_Employees <- PercentSalaryHike_Attrition$number_of_employees/sum(PercentSalaryHike_Attrition$number_of_employees)
+ggplot(PercentSalaryHike_Attrition, aes(x=PercentSalaryHike, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Percent Salary Hike")+theme(plot.title = element_text(hjust = 0.5,size=22)) 
+rowPerc(xtabs(~Attrition+ PercentSalaryHike,casestudy))
+colPerc(xtabs(~Attrition+ PercentSalaryHike,casestudy))
+
+
+#Job Satisfaction
+JobSatisfaction_Attrition <-sqldf("select JobSatisfaction, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobSatisfaction, Attrition")
+JobSatisfaction_Attrition$Percent_Employees <- JobSatisfaction_Attrition$number_of_employees/sum(JobSatisfaction_Attrition$number_of_employees)
+ggplot(JobSatisfaction_Attrition, aes(x=JobSatisfaction, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Job Satisfaction")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ JobSatisfaction,casestudy))
+colPerc(xtabs(~Attrition+ JobSatisfaction,casestudy))
+
+
+#Business Travel
+BusinessTravel_Attrition <-sqldf("select BusinessTravel, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by BusinessTravel, Attrition")
+BusinessTravel_Attrition$Percent_Employees <- BusinessTravel_Attrition$number_of_employees/sum(BusinessTravel_Attrition$number_of_employees)
+ggplot(BusinessTravel_Attrition, aes(x=BusinessTravel, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Business Travel")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ BusinessTravel,casestudy))
+colPerc(xtabs(~Attrition+ BusinessTravel,casestudy))
+
+
+#Relationship Satisfaction
+RelationshipSatisfaction_Attrition <-sqldf("select RelationshipSatisfaction, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by RelationshipSatisfaction, Attrition")
+RelationshipSatisfaction_Attrition$Percent_Employees <- RelationshipSatisfaction_Attrition$number_of_employees/sum(RelationshipSatisfaction_Attrition$number_of_employees)
+ggplot(RelationshipSatisfaction_Attrition, aes(x=RelationshipSatisfaction, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Relationship Satisfaction")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ RelationshipSatisfaction,casestudy))
+colPerc(xtabs(~Attrition+ RelationshipSatisfaction,casestudy))
+
+
+#OverTime
+OverTime_Attrition <-sqldf("select OverTime, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by OverTime, Attrition")
+OverTime_Attrition$Percent_Employees <- OverTime_Attrition$number_of_employees/sum(OverTime_Attrition$number_of_employees)
+ggplot(OverTime_Attrition, aes(x=OverTime, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by OverTime")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ OverTime,casestudy))
+colPerc(xtabs(~Attrition+ OverTime,casestudy))
+
+
+#Job Level
+JobLevel_Attrition <-sqldf("select JobLevel, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by JobLevel, Attrition")
+JobLevel_Attrition$Percent_Employees <- JobLevel_Attrition$number_of_employees/sum(JobLevel_Attrition$number_of_employees)
+ggplot(JobLevel_Attrition, aes(x=JobLevel, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Stock Option Level")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ JobLevel,casestudy))
+colPerc(xtabs(~Attrition+ JobLevel,casestudy))
+
+
+#NumberCompaniesWorked
+NumCompaniesWorked_Attrition <-sqldf("select NumCompaniesWorked, Attrition, sum(EmployeeCount) as number_of_employees from casestudy group by NumCompaniesWorked, Attrition")
+NumCompaniesWorked_Attrition$Percent_Employees <- NumCompaniesWorked_Attrition$number_of_employees/sum(NumCompaniesWorked_Attrition$number_of_employees)
+ggplot(NumCompaniesWorked_Attrition, aes(x=NumCompaniesWorked, y=Percent_Employees, fill=Attrition)) + geom_bar(stat="identity") +
+    theme_minimal()+ggtitle("Attrition of Employees by Number of Companies Worked")+theme(plot.title = element_text(hjust = 0.5,size=22))
+rowPerc(xtabs(~Attrition+ NumCompaniesWorked,casestudy))
+colPerc(xtabs(~Attrition+ NumCompaniesWorked,casestudy))
+```
+
